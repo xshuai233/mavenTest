@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mavenTest.mapper.UserMapper">
+    <resultMap id="userMap" type="mavenTest.pojo.User">
+            <result property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+            <result property="userPass" column="user_pass"/>
+            <result property="userSex" column="user_sex"/>
+            <result property="userAge" column="user_age"/>
+    </resultMap>
+
+<!--    根据id删除用户-->
+    <delete id="deleteUserById" parameterType="User">
+        delete from t_user where user_id = #{userId}
+    </delete>
+
+<!--    查询所有用户-->
+    <select id="queryAllUser" resultMap="userMap">
+        select * from t_user;
+    </select>
+
+<!--    通过id查询用户-->
+    <select id="queryUserById" parameterType="User" resultMap="userMap">
+        select * from t_user where user_id = #{userId}
+    </select>
+<!--    通过姓名查询所有用户-->
+    <select id="queryAllUserByName" parameterType="User" resultMap="userMap">
+        select * from t_user
+        <if test="userName != null">
+            where user_name = #{userName}
+        </if>
+    </select>
+
+<!--    通过姓名和年龄查询所有用户-->
+    <select id="queryAllUserByNameAndAge" parameterType="User" resultMap="userMap">
+        select * from t_user where 1=1
+        <if test="userName != null">
+            and user_name = #{userName}
+        </if>
+        <if test="userAge != null">
+            and user_age = #{userAge}
+        </if>
+    </select>
+
+<!--    通过姓名或年龄查询所有用户-->
+    <select id="queryAllUserByNameOrAge" parameterType="User" resultMap="userMap">
+        select * from t_user where 1=1
+        <if test="userName != null">
+            and user_name = #{userName}
+        </if>
+        <if test="userAge != null">
+            or user_age = #{userAge}
+        </if>
+    </select>
+
+<!--    通过相似姓名查询-->
+    <select id="queryUserLikeByName" parameterType="User" resultMap="userMap">
+        select * from t_user where user_name like '%${userName}%' limit 0,2
+    </select>
+
+<!--    返回添加用户Id-->
+    <insert id="addUserBackId" parameterType="User">
+        <selectKey keyProperty="userId" order="AFTER" resultType="Integer">
+            select last_insert_id()
+        </selectKey>
+        insert into t_user(user_id, user_name, user_pass, user_age, user_sex)
+        values
+        (#{userId}, #{userName}, #{userPass}, #{userAge}, #{userSex})
+    </insert>
+
+<!--    添加用户,userId为随机值-->
+    <insert id="addUserBackById" parameterType="User">
+        <selectKey keyProperty="userId" order="BEFORE" resultType="int">
+            select floor(0 + (rand() * 1000))
+        </selectKey>
+        insert into t_user(user_id, user_name, user_pass, user_age, user_sex)
+        values
+        (#{userId}, #{userName}, #{userPass}, #{userAge}, #{userSex})
+    </insert>
+
+<!--    where多条件查询-->
+    <select id="getAllUser3" parameterType="User" resultMap="userMap">
+        select * from t_user
+        <where>
+            <if test="userName != null">
+                and user_name = #{userName}
+            </if>
+            <if test="userAge != null">
+                and user_age = #{userAge}
+            </if>
+        </where>
+    </select>
+
+<!--    trim多条件查询-->
+    <select id="getAllUser4" parameterType="User" resultMap="userMap">
+        select * from t_user
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="userName != null">
+                and user_name = #{userName}
+            </if>
+            <if test="userAge != null">
+                and user_age = #{userAge}
+            </if>
+        </trim>
+    </select>
+
+<!--    set多条件修改-->
+    <update id="updateUser5" parameterType="User">
+        update t_user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="userAge != null">
+                user_age = #{userAge},
+            </if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateUser" parameterType="User">
+        update t_user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="userAge != null">
+                user_age = #{userAge},
+            </if>
+            <if test="userPass != null">
+                user_pass = #{userPass},
+            </if>
+            <if test="userSex != null">
+                user_sex = #{userSex},
+            </if>
+        </set>
+        where user_id = #{userId}
+    </update>
+</mapper>
+
+
